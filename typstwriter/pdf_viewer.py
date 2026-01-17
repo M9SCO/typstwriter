@@ -13,11 +13,11 @@ from time import time
 
 from typstwriter import util
 
-from typstwriter import logging
+from typstwriter import typstwriter_logging
 from typstwriter import configuration
 from typstwriter import globalstate
 
-logger = logging.getLogger(__name__)
+logger = typstwriter_logging.get_logger(__name__)
 config = configuration.Config
 state = globalstate.State
 

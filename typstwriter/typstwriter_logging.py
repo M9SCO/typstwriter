@@ -29,7 +29,7 @@ class StyleAdapter(logging.LoggerAdapter):
             self.logger._log(level, Message(msg, args), (), stacklevel=2, **kwargs)
 
 
-def setup_logger(level):
+def setup_logger(level: str = "WARNING") -> logging.Logger:
     """Set the main logger up."""
     fmt = "{levelname:8} {asctime:26} {filename:20} {funcName:26} line {lineno:<4d}: {message}"
     formatter = logging.Formatter(fmt=fmt, style="{")
@@ -38,12 +38,15 @@ def setup_logger(level):
     handler.setFormatter(formatter)
     log = logging.root
     log.addHandler(handler)
+
     if level in ["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"]:
         log.setLevel(level)
-    else:
-        log.setLevel("INFO")
+        return log
+
+    log.setLevel("WARNING")
+    return log
 
 
-def getLogger(name):  # noqa N802
+def get_logger(name):
     """Get brace style logger."""
     return StyleAdapter(logging.getLogger(name))

@@ -2,13 +2,11 @@ from qtpy import QtGui
 from qtpy import QtCore
 from qtpy import QtWidgets
 
-from typstwriter import util
+from typstwriter import util, configuration, globalstate
 
-from typstwriter import logging
-from typstwriter import configuration
-from typstwriter import globalstate
+from typstwriter.typstwriter_logging import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 config = configuration.Config
 state = globalstate.State
 

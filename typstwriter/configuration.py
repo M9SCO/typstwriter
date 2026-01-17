@@ -3,9 +3,9 @@ import configparser
 
 import platformdirs
 
-from typstwriter import logging
+from typstwriter import typstwriter_logging
 
-logger = logging.getLogger(__name__)
+logger = typstwriter_logging.get_logger(__name__)
 
 
 default_config_path = os.path.join(platformdirs.user_config_dir("typstwriter", "typstwriter"), "typstwriter.ini")

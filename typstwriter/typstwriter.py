@@ -6,14 +6,14 @@ import os
 os.environ["QT_API"] = "pyside6"
 import qtpy  # noqa: E402 RUF100
 
+from typstwriter.typstwriter_logging import setup_logger, get_logger
+
 
 def main():
     """Run Typstwriter."""
     # Initialise logging
-    from typstwriter import logging  # noqa: PLC0415
-
-    logging.setup_logger(os.environ.get("LOGLEVEL"))
-    logger = logging.getLogger(__name__)
+    setup_logger(os.environ.get("LOGLEVEL", default="WARNING"))
+    logger = get_logger(__name__)
     logger.debug("Logging initialized")
 
     # Parse Arguments

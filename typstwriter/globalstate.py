@@ -4,11 +4,11 @@ import os.path
 
 from typstwriter import enums
 
-from typstwriter import logging
+from typstwriter.typstwriter_logging import get_logger
 from typstwriter import configuration
 from typstwriter import arguments
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 config = configuration.Config
 args = arguments.Args
 

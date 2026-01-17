@@ -12,12 +12,12 @@ from typstwriter import compiler_tools
 from typstwriter import compiler
 from typstwriter import util
 
-from typstwriter import logging
+from typstwriter import typstwriter_logging
 from typstwriter import configuration
 from typstwriter import globalstate
 from typstwriter import arguments
 
-logger = logging.getLogger(__name__)
+logger = typstwriter_logging.get_logger(__name__)
 config = configuration.Config
 state = globalstate.State
 args = arguments.Args
