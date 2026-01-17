@@ -1,6 +1,6 @@
-import pytest
-
 import configparser
+
+import pytest
 
 from typstwriter import configuration
 
@@ -36,7 +36,7 @@ class TestConfigManager:
         cm = configuration.ConfigManager()
 
         assert cm.config.get("Compiler", "name") == "typst"
-        assert cm.writepath == str(configuration.default_config_path)
+        assert cm.writepath == configuration.config_paths[0]
 
     def test_constructor_custom_config(self, custom_config):
         """Make sure the constructor correctly loads a config file."""

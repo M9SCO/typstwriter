@@ -1,7 +1,6 @@
+import pytest
 from qtpy import QtCore
 from qtpy import QtGui
-
-import pytest
 
 from typstwriter import editor
 from typstwriter import enums
@@ -47,7 +46,12 @@ comment_text = [
     ("Just\n//some\ntext.", "//Just\n////some\n//text.", "Just\n//some\ntext.", (0, 2)),
     ("Just\n//some\ntext.", "Just\nsome\ntext.", "Just\n//some\ntext.", (1, 1)),
     ("Just\n  //some\ntext.", "Just\n  some\ntext.", "Just\n//  some\ntext.", (1, 1)),
-    ("Just\nsome//more\ntext.", "Just\n//some//more\ntext.", "Just\nsome//more\ntext.", (1, 1)),
+    (
+        "Just\nsome//more\ntext.",
+        "Just\n//some//more\ntext.",
+        "Just\nsome//more\ntext.",
+        (1, 1),
+    ),
 ]
 
 
@@ -61,9 +65,14 @@ class TestWelcomePage:
         welcome_page = editor.WelcomePage()
         welcome_page.update_recent_files(recent_files)
 
-        assert welcome_page.recentFilesModel.recent_files == recent_files
+        assert welcome_page.recentFilesModel.default_recent_files == recent_files
         for i, f in enumerate(recent_files):
-            assert welcome_page.recentFilesModel.itemData(welcome_page.recentFilesModel.index(i))[0] == f
+            assert (
+                welcome_page.recentFilesModel.itemData(
+                    welcome_page.recentFilesModel.index(i)
+                )[0]
+                == f
+            )
 
     def test_open_file(self, qtbot, tmp_path):
         """Test doubleclick in recent files."""
@@ -92,22 +101,30 @@ class TestCodeEdit:
 
     def test_line_highlighting_on(self, qtbot):
         """Test line highlighting."""
-        code_edit = editor.CodeEdit(highlight_synatx=False, show_line_numbers=False, highlight_line=True)
+        code_edit = editor.CodeEdit(
+            highlight_synatx=False, show_line_numbers=False, highlight_line=True
+        )
         code_edit.insertPlainText("Just\nsome\nexample\ntext.")
 
         # Selecting a single line should highlight
         code_edit.moveCursor(QtGui.QTextCursor.Start)
-        code_edit.moveCursor(QtGui.QTextCursor.NextBlock, QtGui.QTextCursor.MoveMode.MoveAnchor)
+        code_edit.moveCursor(
+            QtGui.QTextCursor.NextBlock, QtGui.QTextCursor.MoveMode.MoveAnchor
+        )
         assert code_edit.extraSelections()[0].cursor == code_edit.textCursor()
 
         # Selecting multiple lines should not highlight
         code_edit.moveCursor(QtGui.QTextCursor.Start)
-        code_edit.moveCursor(QtGui.QTextCursor.NextBlock, QtGui.QTextCursor.MoveMode.KeepAnchor)
+        code_edit.moveCursor(
+            QtGui.QTextCursor.NextBlock, QtGui.QTextCursor.MoveMode.KeepAnchor
+        )
         assert not code_edit.extraSelections()
 
     def test_line_highlighting_off(self, qtbot):
         """Test line highlighting."""
-        code_edit = editor.CodeEdit(highlight_synatx=False, show_line_numbers=False, highlight_line=False)
+        code_edit = editor.CodeEdit(
+            highlight_synatx=False, show_line_numbers=False, highlight_line=False
+        )
         code_edit.insertPlainText("Just\nsome\nexample\ntext.")
         code_edit.moveCursor(QtGui.QTextCursor.Start)
         code_edit.moveCursor(QtGui.QTextCursor.NextBlock)
@@ -115,28 +132,42 @@ class TestCodeEdit:
 
     def test_key_press_tab(self, qtbot):
         """Test key press interception when pressing tab."""
-        code_edit = editor.CodeEdit(highlight_synatx=False, show_line_numbers=False, use_spaces=True)
+        code_edit = editor.CodeEdit(
+            highlight_synatx=False, show_line_numbers=False, use_spaces=True
+        )
         qtbot.keyPress(code_edit, QtCore.Qt.Key_Tab)
         assert code_edit.toPlainText() == "    "
 
     def test_key_press_linebreak(self, qtbot):
         """Test key press interception when pressing shift enter."""
-        code_edit = editor.CodeEdit(highlight_synatx=False, show_line_numbers=False, use_spaces=True)
+        code_edit = editor.CodeEdit(
+            highlight_synatx=False, show_line_numbers=False, use_spaces=True
+        )
         qtbot.keyPress(code_edit, QtCore.Qt.Key_Return, QtCore.Qt.ShiftModifier)
         assert code_edit.toPlainText() == "\n"
 
-    @pytest.mark.parametrize(("text", "query", "mode", "_spans", "replace_text", "result"), search_data)
+    @pytest.mark.parametrize(
+        ("text", "query", "mode", "_spans", "replace_text", "result"), search_data
+    )
     def test_replace_all_matches(self, query, mode, text, replace_text, result, _spans):
         """Test replace_all_matches() for all four query modes."""
-        code_edit = editor.CodeEdit(highlight_synatx=False, show_line_numbers=False, use_spaces=True)
+        code_edit = editor.CodeEdit(
+            highlight_synatx=False, show_line_numbers=False, use_spaces=True
+        )
         code_edit.insertPlainText(text)
         code_edit.replace_all_matches(query, mode, replace_text)
         assert code_edit.toPlainText() == result
 
-    @pytest.mark.parametrize(("text", "query", "mode", "spans", "_replace_text", "_result"), search_data)
-    def test_highlight_all_matches(self, query, mode, text, spans, _replace_text, _result):
+    @pytest.mark.parametrize(
+        ("text", "query", "mode", "spans", "_replace_text", "_result"), search_data
+    )
+    def test_highlight_all_matches(
+        self, query, mode, text, spans, _replace_text, _result
+    ):
         """Test highlight_all_matches() for all four query modes."""
-        code_edit = editor.CodeEdit(highlight_synatx=False, show_line_numbers=False, use_spaces=True)
+        code_edit = editor.CodeEdit(
+            highlight_synatx=False, show_line_numbers=False, use_spaces=True
+        )
         code_edit.insertPlainText(text)
         code_edit.highlight_all_matches(query, mode)
         for selection, span in zip(code_edit.search_highlights, spans, strict=True):
@@ -144,15 +175,23 @@ class TestCodeEdit:
             assert selection.cursor.position() == span[1]
 
     @pytest.mark.parametrize(("text", "toggle", "retoggle", "selection"), comment_text)
-    def test_highlight_all_matches(self, text, toggle, retoggle, selection):  # noqa PT019
+    def test_highlight_all_matches(
+        self, text, toggle, retoggle, selection
+    ):  # noqa PT019
         """Test toggle_comment() for various selections."""
         start, stop = selection
-        code_edit = editor.CodeEdit(highlight_synatx=False, show_line_numbers=False, use_spaces=True)
+        code_edit = editor.CodeEdit(
+            highlight_synatx=False, show_line_numbers=False, use_spaces=True
+        )
         code_edit.insertPlainText(text)
         cursor = code_edit.textCursor()
         cursor.setPosition(0)
-        cursor.movePosition(QtGui.QTextCursor.NextBlock, QtGui.QTextCursor.MoveAnchor, start)
-        cursor.movePosition(QtGui.QTextCursor.NextBlock, QtGui.QTextCursor.KeepAnchor, stop - start)
+        cursor.movePosition(
+            QtGui.QTextCursor.NextBlock, QtGui.QTextCursor.MoveAnchor, start
+        )
+        cursor.movePosition(
+            QtGui.QTextCursor.NextBlock, QtGui.QTextCursor.KeepAnchor, stop - start
+        )
         code_edit.setTextCursor(cursor)
 
         code_edit.toggle_comment()

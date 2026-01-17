@@ -1,5 +1,6 @@
-import os
 import configparser
+import os
+from pathlib import Path
 
 import platformdirs
 
@@ -7,16 +8,33 @@ from typstwriter import typstwriter_logging
 
 logger = typstwriter_logging.get_logger(__name__)
 
+main_path_dir = Path("typstwriter")
 
-default_config_path = os.path.join(platformdirs.user_config_dir("typstwriter", "typstwriter"), "typstwriter.ini")
-default_recent_files_path = os.path.join(platformdirs.user_data_dir("typstwriter", "typstwriter"), "recentFiles.txt")
-default_session_path = os.path.join(platformdirs.user_data_dir("typstwriter", "typstwriter"), "Session.txt")
+# linux path only
 
-config_paths = ["/etc/typstwriter/typstwriter.ini",
-                "/usr/local/etc/typstwriter/typstwriter.ini",
-                default_config_path,
-                os.path.expanduser("~/.typstwriter.ini"),
-                "./typstwriter.ini"]  # fmt: skip
+config = main_path_dir / "typstwriter.ini"
+
+
+default_config_path = Path(platformdirs.user_config_dir()) / config
+default_recent_files = platformdirs.user_data_dir() / main_path_dir / "recentFiles.txt"
+default_session_files = platformdirs.user_data_dir() / main_path_dir / "Session.txt"
+
+config_places = [
+    Path("/") / "etc",
+    Path("/") / "usr" / "local" / "etc",
+    # Path("."),
+]
+
+# ToDo Make windows path
+# ToDo Wrap conditions for check OS
+
+
+config_paths = [
+    *(path / config for path in config_places),
+    default_config_path,
+    Path.home() / f".{config.stem}",
+    Path(f".{config.stem}"),
+]
 
 default_config = {"General": {"working_directory": "~/",
                               "resume_last_session": False,
@@ -34,9 +52,10 @@ default_config = {"General": {"working_directory": "~/",
                              "show_fs_explorer": True,
                              "show_compiler_options": True,
                              "show_compiler_output": True},
-                  "Internals": {"recent_files_path": default_recent_files_path,
+                  "Internals": {"recent_files_path": str(default_recent_files),
                                 "recent_files_length": 16,
-                                "session_path": default_session_path}}  # fmt: skip
+                                "session_path": str(default_session_files)}
+                  }  # fmt: skip
 
 
 class ConfigManager:
